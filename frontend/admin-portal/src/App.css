@@ -1,0 +1,20 @@
+/* Global Reset: Removes default spacing */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Body Settings */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f0f2f5; /* Light gray background */
+  color: #333;
+  line-height: 1.6;
+}
+
+/* Button Settings */
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
