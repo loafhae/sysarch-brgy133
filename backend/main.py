@@ -1,54 +1,77 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from database import get_db
-from models import User, Admin, Official, Resident, UserRole
-from schemas import LoginRequest, LoginResponse
-from security import verify_password, create_access_token
-from routers import admin  # <--- Added this
+from models import User, Resident, Admin, Official, UserRole
+from pydantic import BaseModel
+from passlib.context import CryptContext
 
-app = FastAPI(title="Barangay System API")
+app = FastAPI()
 
+# --- MIDDLEWARE ---
+# Allows React and Flutter to talk to this API
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Include Admin Router
-app.include_router(admin.router) # <--- Added this
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-@app.post("/login", response_model=LoginResponse)
-def login(request: LoginRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.username == request.username).first()
-    if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
-    if not verify_password(request.password, user.password):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
-    
-    full_name = "Unknown User"
-    if user.roles == UserRole.super_admin:
-        profile = db.query(Admin).filter(Admin.user_id == user.user_id).first()
-        if profile: full_name = f"{profile.first_name} {profile.last_name}"
-    elif user.roles == UserRole.barangay_official:
-        profile = db.query(Official).filter(Official.user_id == user.user_id).first()
-        if profile: full_name = f"{profile.first_name} {profile.last_name}"
-    elif user.roles == UserRole.resident:
-        profile = db.query(Resident).filter(Resident.user_id == user.user_id).first()
-        if profile: full_name = f"{profile.first_name} {profile.last_name}"
+# --- SCHEMAS ---
+class LoginRequest(BaseModel):
+    username: str
+    password: str
 
-    access_token = create_access_token(data={"sub": user.username, "role": user.roles, "id": user.user_id})
-    
-    return {
-        "access_token": access_token,
-        "token_type": "bearer",
-        "user_id": user.user_id,
-        "role": user.roles,
-        "full_name": full_name
-    }
+# --- ENDPOINTS ---
 
 @app.get("/")
-def read_root():
-    return {"status": "System Online"}
+def home():
+    return {"message": "Barangay API is Running (Strict Version)"}
+
+@app.post("/login")
+def login(req: LoginRequest, db: Session = Depends(get_db)):
+    # 1. Find the user in the database
+    user = db.query(User).filter(User.username == req.username).first()
+    
+    # 2. Validate User and Password
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    # Check if password is hashed (bcrypt starts with $2b$, $2a$, or $2y$)
+    if user.password.startswith('$2'):
+        # Password is hashed, use verify
+        if not pwd_context.verify(req.password, user.password):
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+    else:
+        # Password is plain text (temporary fix - hash it on the fly)
+        if req.password != user.password:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    # 3. Determine the Full Name based on Role
+    full_name = "User"
+    role_str = user.roles.value if hasattr(user.roles, 'value') else str(user.roles)
+
+    if user.roles == UserRole.super_admin:
+        profile = db.query(Admin).filter(Admin.user_id == user.user_id).first()
+        if profile:
+            full_name = f"{profile.first_name} {profile.last_name}"
+            
+    elif user.roles == UserRole.barangay_official:
+        profile = db.query(Official).filter(Official.user_id == user.user_id).first()
+        if profile:
+            full_name = f"{profile.first_name} {profile.last_name}"
+            
+    elif user.roles == UserRole.resident:
+        profile = db.query(Resident).filter(Resident.user_id == user.user_id).first()
+        if profile:
+            full_name = f"{profile.first_name} {profile.last_name}"
+
+    # 4. Return the data
+    return {
+        "user_id": user.user_id,
+        "username": user.username,
+        "role": role_str,
+        "full_name": full_name
+    }
