@@ -6,7 +6,8 @@ from sqlalchemy.orm import sessionmaker
 # mysql+pymysql://<username>:<password>@<host>/<db_name>
 # Since XAMPP default is usually 'root' with no password, we leave it empty after the colon.
 
-SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:@localhost:3306/barangay_system_db"
+
+SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:@localhost/barangay_system_db"
 
 # Create the engine
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
