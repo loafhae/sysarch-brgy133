@@ -1,6 +1,6 @@
 -- Create Database
-CREATE DATABASE IF NOT EXISTS barangay_db;
-USE barangay_db;
+CREATE DATABASE IF NOT EXISTS barangay_system_db;
+USE barangay_system_db;
 
 -- 1. Users Table
 CREATE TABLE tbl_Users (
