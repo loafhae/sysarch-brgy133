@@ -1,55 +1,88 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'; // Add Link here!
 import './Dashboard.css';
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const fullName = localStorage.getItem('full_name') || "Admin";
+  const location = useLocation();
+  const fullName = localStorage.getItem('full_name') || "John Doe";
 
   const handleLogout = () => {
     localStorage.clear();
     navigate('/login');
   };
 
+  const isDashboardHome = location.pathname === '/dashboard';
+
   return (
     <div className="dashboard-container">
-      {/* Sidebar */}
+      {/* LEFT SIDEBAR */}
       <aside className="sidebar">
-        <div className="brand">Barangay Admin</div>
-        <nav>
+        <div className="sidebar-brand">
+          <div className="brand-logo">☒</div>
+          <h2>BARANGAY 133</h2>
+        </div>
+        <nav className="sidebar-nav">
           <ul>
-            <li className="active">Dashboard</li>
-            <li onClick={() => alert('Announcements Page coming soon')}>Post Announcement</li>
-            <li onClick={() => alert('Feedback Page coming soon')}>View Feedback</li>
+            <li>
+              <NavLink to="/dashboard" end className={({ isActive }) => isActive ? 'sidebar-link active' : 'sidebar-link'}>
+                Dashboard
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/dashboard/users" className={({ isActive }) => isActive ? 'sidebar-link active' : 'sidebar-link'}>
+                User Management
+              </NavLink>
+            </li>
+            <li className="sidebar-link-placeholder">Residents Record</li>
+            <li className="sidebar-link-placeholder">Feedback</li>
+            <li className="sidebar-link-placeholder">System Settings</li>
           </ul>
         </nav>
-      </aside>
-      
-      {/* Main Content */}
-      <main className="main-content">
-        <header className="top-bar">
-          <h3>Welcome, {fullName}</h3>
-          <button onClick={handleLogout} className="logout-btn">Logout</button>
-        </header>
-        
-        <div className="content">
-          <h1>Admin Dashboard</h1>
-          <div className="stats-grid">
-            <div className="stat-card">
-              <h3>Total Residents</h3>
-              <p>0</p>
-            </div>
-            <div className="stat-card">
-              <h3>Announcements</h3>
-              <p>0</p>
-            </div>
-            <div className="stat-card">
-              <h3>Pending Feedback</h3>
-              <p>0</p>
-            </div>
-          </div>
+        <div className="sidebar-footer">
+          <button onClick={handleLogout} className="logout-btn-red">Logout</button>
         </div>
-      </main>
+      </aside>
+
+      {/* RIGHT SIDE WRAPPER */}
+      <div className="main-wrapper">
+        <header className="top-bar">
+          <div className="user-info">
+            <span className="user-icon">👤</span>
+            <span className="welcome-text">Welcome! {fullName}</span>
+          </div>
+          <div className="header-icons">
+
+          </div>
+        </header>
+
+        <main className="content">
+          {isDashboardHome ? (
+            <div className="stats-grid">
+              <div className="stat-card">
+                <span className="card-label">Number Of Users</span>
+                <span className="card-value">970</span>
+              </div>
+              <div className="stat-card">
+                <span className="card-label">Number Of Residents</span>
+                <span className="card-value">5,000</span>
+              </div>
+              <div className="stat-card full-width">
+                <span className="card-label">Pending Feedback</span>
+                <span className="card-value">200</span>
+              </div>
+            </div>
+          ) : (
+            <div className="outlet-container">
+               <Outlet /> 
+            </div>
+          )}
+        </main>
+
+        <footer className="main-footer">
+
+        </footer>
+      </div>
     </div>
   );
 };

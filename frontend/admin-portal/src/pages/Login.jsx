@@ -1,71 +1,69 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import './Login.css'; // We will create this CSS next
+import './Login.css'; // Make sure this file exists for your styling
 
 const Login = () => {
+  // 1. Setup state to capture what you type
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  // 2. The Login Function
   const handleLogin = async (e) => {
-    e.preventDefault();
-    setError('');
-
+    e.preventDefault(); // Prevents the page from refreshing
     try {
-      // Connect to the Python Backend
-      const response = await axios.post('http://127.0.0.1:8000/login', {
+      // Sends data to your Python backend
+      const response = await axios.post('http://localhost:8000/login', {
         username: username,
-        password: password,
+        password: password
       });
 
-      // If successful, save user data to browser memory
-      const data = response.data;
-      localStorage.setItem('user_id', data.user_id);
-      localStorage.setItem('role', data.role);
-      localStorage.setItem('full_name', data.full_name);
-
-      alert(`Welcome, ${data.full_name}!`);
-      navigate('/dashboard'); // Go to Dashboard
-
+      if (response.data) {
+        // Save session data to browser memory
+        localStorage.setItem('full_name', response.data.full_name);
+        localStorage.setItem('role', response.data.role);
+        
+        // JUMP TO DASHBOARD - This is what stops you from being "stuck"
+        navigate('/dashboard'); 
+      }
     } catch (err) {
-      setError('Invalid username or password');
+      console.error("Login Error:", err);
+      alert("Invalid credentials. Please try again.");
     }
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
+    <div className="login-wrapper">
+      <form onSubmit={handleLogin} className="login-card">
         <h2>Barangay 133 Admin</h2>
-        <p className="subtitle">Secure Access Portal</p>
+        <p>Secure Access Portal</p>
         
-        {error && <p className="error">{error}</p>}
-        
-        <form onSubmit={handleLogin}>
-          <div>
-            <label>Username</label>
-            <input 
-              type="text" 
-              value={username} 
-              onChange={(e) => setUsername(e.target.value)} 
-              required 
-            />
-          </div>
-          <div>
-            <label>Password</label>
-            <input 
-              type="password" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              required 
-            />
-          </div>
-          <button type="submit">Login</button>
-        </form>
-      </div>
+        <div className="input-group">
+          <label>Username</label>
+          <input 
+            type="text" 
+            value={username}
+            onChange={(e) => setUsername(e.target.value)} 
+            required 
+          />
+        </div>
+
+        <div className="input-group">
+          <label>Password</label>
+          <input 
+            type="password" 
+            value={password}
+            onChange={(e) => setPassword(e.target.value)} 
+            required 
+          />
+        </div>
+
+        <button type="submit" className="login-btn">Login</button>
+      </form>
     </div>
   );
 };
 
+// IMPORTANT: This line fixes the "SyntaxError: does not provide an export named default"
 export default Login;

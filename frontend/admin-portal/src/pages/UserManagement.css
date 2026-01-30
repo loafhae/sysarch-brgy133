@@ -1,0 +1,114 @@
+.management-page {
+  width: 100%; /* Force full width */
+  flex: 1; /* Force full height */
+  display: flex;
+  flex-direction: column;
+}
+
+.table-view {
+  background: white;
+  width: 100%;
+  flex: 1; /* This makes the white box stretch to the bottom footer */
+  border: 3px solid #333;
+  box-shadow: 15px 15px 0px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+}
+/* Search (Left) and Add User (Right) */
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 50px;
+  border-bottom: 3px solid #333;
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column; /* Stacks search and filter */
+  gap: 5px;              /* Adds vertical space between them */
+  align-items: flex-start;
+}
+
+.search-box {
+  background: white; 
+  border: 3px solid #000;
+  display: flex;
+  align-items: center;
+  padding: 12px 10px; /* Large but not overwhelming */
+  width: 300px;
+}
+
+.search-box input {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.4rem; /* Big text */
+  font-weight: bold;
+  outline: none;
+  width: 100%;
+}
+
+.filter-select {
+  background: #222;
+  color: white;
+  padding: 10px 10px;
+  font-size: 1.2rem;
+  font-weight: 900;
+  border: 3px solid #000;
+  width: 180px;
+}
+
+
+
+.add-new-btn {
+  background: #1eff00;
+  color: rgb(0, 0, 0);
+  border: 1px solid #000;
+  /* Reduced padding to make it smaller T^T */
+  padding: 5px 5px; 
+  font-size: 1rem; /* Smaller, standard font size */
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  border-radius: 2px;
+  box-shadow: 3px 3px 0px rgba(0,0,0,0.2);
+}
+
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1.5rem; /* BIG TEXT */
+}
+
+.user-table th {
+  background: #eee;
+  padding: 5px;
+  border: 2px solid #333;
+}
+
+.user-table td {
+  padding: 25px 150px;
+  border: 1px solid #333;
+}
+
+/* Zebra Stripes for empty rows */
+.user-table tbody {
+  background-image: repeating-linear-gradient(
+    #fff, #fff 5px, 
+    #f2f2f2 5px, #f2f2f2 5px
+  );
+}
+
+.action-icon {
+  font-size: 2rem;      /* Increases icon size */
+  padding: 0px;
+  background: #eee;     /* Grey circle look */
+  border-radius: 50%;
+  margin: 0 5px;
+  border: 1px solid #333;
+}
+
+
+

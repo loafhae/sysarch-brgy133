@@ -5,14 +5,15 @@ from database import get_db
 from models import User, Resident, Admin, Official, UserRole
 from pydantic import BaseModel
 from passlib.context import CryptContext
-
+from routers.admin import router as admin_router
 app = FastAPI()
 
 # --- MIDDLEWARE ---
 # Allows React and Flutter to talk to this API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:5173"], # Your React URL
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -75,3 +76,5 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
         "role": role_str,
         "full_name": full_name
     }
+
+app.include_router(admin_router, prefix="/api")
