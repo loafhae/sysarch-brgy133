@@ -5,27 +5,30 @@ from database import get_db
 from models import User, Resident, Admin, Official, UserRole
 from pydantic import BaseModel
 from passlib.context import CryptContext
-from routers.admin import router as admin_router
+
 app = FastAPI()
 
-# --- MIDDLEWARE ---
-# Allows React and Flutter to talk to this API
+# --- ADD THIS MIDDLEWARE ---
+# This tells the Browser: "It is safe to connect to me"
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"], # Your React URL
+    allow_origins=["*"],  # Allows all origins (like Chrome)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+# ----------------------------
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# --- SCHEMAS ---
 class LoginRequest(BaseModel):
     username: str
     password: str
 
-# --- ENDPOINTS ---
+class AnnouncementRequest(BaseModel):
+    title: str
+    body: str
+    created_by: int
 
 @app.get("/")
 def home():
@@ -33,43 +36,26 @@ def home():
 
 @app.post("/login")
 def login(req: LoginRequest, db: Session = Depends(get_db)):
-    # 1. Find the user in the database
     user = db.query(User).filter(User.username == req.username).first()
-    
-    # 2. Validate User and Password
-    if not user:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-    
-    # Check if password is hashed (bcrypt starts with $2b$, $2a$, or $2y$)
-    if user.password.startswith('$2'):
-        # Password is hashed, use verify
-        if not pwd_context.verify(req.password, user.password):
-            raise HTTPException(status_code=401, detail="Invalid credentials")
-    else:
-        # Password is plain text (temporary fix - hash it on the fly)
-        if req.password != user.password:
-            raise HTTPException(status_code=401, detail="Invalid credentials")
+    if not user or user.password != req.password:
+        raise HTTPException(status_code=400, detail="Invalid credentials")
 
-    # 3. Determine the Full Name based on Role
     full_name = "User"
-    role_str = user.roles.value if hasattr(user.roles, 'value') else str(user.roles)
+    role_str = str(user.roles)
 
-    if user.roles == UserRole.super_admin:
+    if role_str == "Super Admin":
         profile = db.query(Admin).filter(Admin.user_id == user.user_id).first()
         if profile:
             full_name = f"{profile.first_name} {profile.last_name}"
-            
-    elif user.roles == UserRole.barangay_official:
+    elif role_str == "Barangay Official":
         profile = db.query(Official).filter(Official.user_id == user.user_id).first()
         if profile:
             full_name = f"{profile.first_name} {profile.last_name}"
-            
-    elif user.roles == UserRole.resident:
+    elif role_str == "Resident":
         profile = db.query(Resident).filter(Resident.user_id == user.user_id).first()
         if profile:
             full_name = f"{profile.first_name} {profile.last_name}"
 
-    # 4. Return the data
     return {
         "user_id": user.user_id,
         "username": user.username,
@@ -77,4 +63,13 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
         "full_name": full_name
     }
 
-app.include_router(admin_router, prefix="/api")
+@app.post("/announcements")
+def create_announcement(req: AnnouncementRequest, db: Session = Depends(get_db)):
+    new_ann = Announcement(
+        title=req.title,
+        body=req.body,
+        created_by=req.created_by
+    )
+    db.add(new_ann)
+    db.commit()
+    return {"message": "Announcement posted successfully!"}

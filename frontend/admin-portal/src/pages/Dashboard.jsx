@@ -56,27 +56,29 @@ const Dashboard = () => {
           </div>
         </header>
 
-        <main className="content">
-          {isDashboardHome ? (
-            <div className="stats-grid">
-              <div className="stat-card">
-                <span className="card-label">Number Of Users</span>
-                <span className="card-value">970</span>
+        <main className="content" role="main">
+          <div className="content-inner" aria-live="polite">
+            {isDashboardHome ? (
+              <div className="centered-grid" role="region" aria-label="Dashboard statistics">
+                <div className="stat-card">
+                  <span className="card-label">Number Of Users</span>
+                  <span className="card-value">970</span>
+                </div>
+                <div className="stat-card">
+                  <span className="card-label">Number Of Residents</span>
+                  <span className="card-value">5,000</span>
+                </div>
+                <div className="stat-card full-width">
+                  <span className="card-label">Pending Feedback</span>
+                  <span className="card-value">200</span>
+                </div>
               </div>
-              <div className="stat-card">
-                <span className="card-label">Number Of Residents</span>
-                <span className="card-value">5,000</span>
+            ) : (
+              <div className="outlet-container">
+                <Outlet />
               </div>
-              <div className="stat-card full-width">
-                <span className="card-label">Pending Feedback</span>
-                <span className="card-value">200</span>
-              </div>
-            </div>
-          ) : (
-            <div className="outlet-container">
-               <Outlet /> 
-            </div>
-          )}
+            )}
+          </div>
         </main>
 
         <footer className="main-footer">
