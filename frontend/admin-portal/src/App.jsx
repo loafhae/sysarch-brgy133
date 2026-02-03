@@ -2,23 +2,18 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
-import UserManagement from './pages/UserManagement';
+import CreateAnnouncement from './pages/CreateAnnouncement'; // Import the page
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Redirect empty path to login */}
-        <Route path="/" element={<Navigate to="/login" replace />} />      
-        
-        {/* Independent Login Page */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         
-        {/* Dashboard Parent: It MUST stay open to show the sidebar */}
-        <Route path="/dashboard" element={<Dashboard />}>
-          {/* UserManagement Child: This loads inside the Dashboard's Outlet */}
-          <Route path="users" element={<UserManagement />} />
-        </Route>
+        {/* THIS IS THE MISSING LINK */}
+        <Route path="/create-announcement" element={<CreateAnnouncement />} />
       </Routes>
     </Router>
   );

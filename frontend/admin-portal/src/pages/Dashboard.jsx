@@ -1,89 +1,78 @@
 import React from 'react';
-import { Link, NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'; // Add Link here!
+import { useNavigate, Link } from 'react-router-dom';
 import './Dashboard.css';
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const fullName = localStorage.getItem('full_name') || "John Doe";
+  const fullName = localStorage.getItem('full_name') || "Admin";
 
   const handleLogout = () => {
     localStorage.clear();
     navigate('/login');
   };
 
-  const isDashboardHome = location.pathname === '/dashboard';
-
   return (
     <div className="dashboard-container">
-      {/* LEFT SIDEBAR */}
+      {/* Sidebar */}
       <aside className="sidebar">
-        <div className="sidebar-brand">
-          <div className="brand-logo">☒</div>
-          <h2>BARANGAY 133</h2>
-        </div>
-        <nav className="sidebar-nav">
-          <ul>
+        <div className="brand">Barangay 133 Admin</div>
+        <nav>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {/* Using className="sidebar-link" to match CSS */}
             <li>
-              <NavLink to="/dashboard" end className={({ isActive }) => isActive ? 'sidebar-link active' : 'sidebar-link'}>
-                Dashboard
-              </NavLink>
+              <Link to="/dashboard" className="sidebar-link active">Dashboard</Link>
             </li>
             <li>
-              <NavLink to="/dashboard/users" className={({ isActive }) => isActive ? 'sidebar-link active' : 'sidebar-link'}>
-                User Management
-              </NavLink>
+              <Link to="/create-announcement" className="sidebar-link">Post Announcement</Link>
             </li>
-            <li className="sidebar-link-placeholder">Residents Record</li>
-            <li className="sidebar-link-placeholder">Feedback</li>
-            <li className="sidebar-link-placeholder">System Settings</li>
+            <li>
+              <Link to="/view-feedback" className="sidebar-link">View Feedback</Link>
+            </li>
           </ul>
         </nav>
-        <div className="sidebar-footer">
-          <button onClick={handleLogout} className="logout-btn-red">Logout</button>
-        </div>
       </aside>
-
-      {/* RIGHT SIDE WRAPPER */}
+      
+      {/* Main Wrapper (Required by your CSS) */}
       <div className="main-wrapper">
+        
+        {/* Top Bar */}
         <header className="top-bar">
-          <div className="user-info">
-            <span className="user-icon">👤</span>
-            <span className="welcome-text">Welcome! {fullName}</span>
-          </div>
-          <div className="header-icons">
-
-          </div>
+          <h3>Welcome, {fullName}</h3>
+          <button onClick={handleLogout} className="logout-btn">Logout</button>
         </header>
+        
+        {/* Content Area */}
+        <div className="content">
+          
+          {/* Inner White Panel */}
+          <div className="content-inner">
+            <h1 style={{marginTop: 0}}>Admin Dashboard</h1>
+            
+            {/* Stats Grid */}
+            <div className="centered-grid">
+              <div className="stat-card">
+                <h3>Total Residents</h3>
+                <p>0</p>
+              </div>
+              <div className="stat-card">
+                <h3>Announcements</h3>
+                <p>0</p>
+              </div>
+              <div className="stat-card">
+                <h3>Pending Feedback</h3>
+                <p>0</p>
+              </div>
+            </div>
 
-        <main className="content" role="main">
-          <div className="content-inner" aria-live="polite">
-            {isDashboardHome ? (
-              <div className="centered-grid" role="region" aria-label="Dashboard statistics">
-                <div className="stat-card">
-                  <span className="card-label">Number Of Users</span>
-                  <span className="card-value">970</span>
-                </div>
-                <div className="stat-card">
-                  <span className="card-label">Number Of Residents</span>
-                  <span className="card-value">5,000</span>
-                </div>
-                <div className="stat-card full-width">
-                  <span className="card-label">Pending Feedback</span>
-                  <span className="card-value">200</span>
-                </div>
-              </div>
-            ) : (
-              <div className="outlet-container">
-                <Outlet />
-              </div>
-            )}
           </div>
-        </main>
 
+        </div>
+
+        {/* Footer (Required by your CSS) */}
         <footer className="main-footer">
-
+          <span>&copy; 2023 Barangay 133 System</span>
         </footer>
+
       </div>
     </div>
   );
