@@ -16,13 +16,6 @@
   flex-direction: column;
 }
 
-.sidebar .brand {
-  padding: 20px;
-  font-size: 1.2rem;
-  font-weight: bold;
-  border-bottom: 2px solid #333;
-}
-
 /* Sidebar Menu Fix - No more blue links */
 .sidebar-link {
   text-decoration: none;
@@ -32,10 +25,6 @@
   font-weight: 700;
   border-bottom: 1px solid rgba(0,0,0,0.08);
   transition: background-color 0.18s ease, color 0.18s ease;
-}
-
-.sidebar-link:hover {
-  background-color: #e0e0e0;
 }
 
 /* The Black Background for the Active Page */
@@ -51,13 +40,11 @@
   flex-direction: column;
   min-height: 100vh;
   position: relative;
-  background: #a83a3f; /* Red Background */
+  background: #a83a3f;
   overflow: hidden;
 }
 
 /* Subtle background image behind content */
-/* I commented this out to prevent errors if you don't have the image yet */
-/*
 .main-wrapper::before {
   content: "";
   position: absolute;
@@ -70,7 +57,6 @@
   pointer-events: none;
   filter: grayscale(20%) contrast(0.9);
 }
-*/
 
 .top-bar, .main-footer {
   background: #fff;
@@ -116,6 +102,9 @@
   margin: 0 auto 36px;
 }
 
+/* Move the grid inside the white panel */
+.content-inner .centered-grid { margin: 0; }
+
 /* The white cards with hard shadows */
 .stat-card {
   background: #fff;
@@ -126,26 +115,15 @@
   border-radius: 6px;
 }
 
-.stat-card h3 {
-  color: #7f8c8d;
-  font-size: 0.9rem;
-  margin: 0 0 10px 0;
-}
-
-.stat-card p {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #a83a3f;
-  margin: 0;
-}
-
 /* Responsive tweaks */
 @media (max-width: 900px) {
   .sidebar { display: none; }
   .dashboard-container { width: 100%; }
   .top-bar, .main-footer { padding: 10px 16px; }
+  .main-wrapper::before { background-position: center top; }
 }
 
 @media (max-width: 480px) {
   .stat-card { padding: 18px; }
 }
+

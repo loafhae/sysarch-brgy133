@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey, Enum, Float, Date
+from sqlalchemy.sql import func  # <--- Added this import
 from database import Base
 import enum
 
@@ -24,7 +25,7 @@ class User(Base):
     username = Column(String(50), unique=True, index=True, nullable=False)
     password = Column(String(255), nullable=False)
     roles = Column(Enum(UserRole), nullable=False)
-    created_at = Column(DateTime, server_default="CURRENT_TIMESTAMP")
+    created_at = Column(DateTime, server_default=func.now())  # <--- Fixed
 
 class Admin(Base):
     __tablename__ = "tbl_Admin"
@@ -66,7 +67,7 @@ class Announcement(Base):
     title = Column(String(200), nullable=False)
     body = Column(Text, nullable=False)
     created_by = Column(Integer, ForeignKey("tbl_Users.user_id", ondelete="SET NULL"))
-    created_at = Column(DateTime, server_default="CURRENT_TIMESTAMP")
+    created_at = Column(DateTime, server_default=func.now())  # <--- Fixed
     status = Column(Enum(AnnouncementStatus), default=AnnouncementStatus.active)
 
 class Feedback(Base):
@@ -76,7 +77,7 @@ class Feedback(Base):
     subject = Column(String(200))
     message = Column(Text, nullable=False)
     status = Column(Enum(FeedbackStatus), default=FeedbackStatus.pending)
-    created_at = Column(DateTime, server_default="CURRENT_TIMESTAMP")
+    created_at = Column(DateTime, server_default=func.now())  # <--- Fixed
 
 class DetectionLog(Base):
     __tablename__ = "tbl_DetectionLog"
@@ -84,7 +85,7 @@ class DetectionLog(Base):
     camera_location = Column(String(100))
     confidence_score = Column(Float)
     image_path = Column(String(255))
-    timestamp = Column(DateTime, server_default="CURRENT_TIMESTAMP")
+    timestamp = Column(DateTime, server_default=func.now())  # <--- Fixed
 
 class Notification(Base):
     __tablename__ = "tbl_Notifications"
@@ -94,22 +95,22 @@ class Notification(Base):
     announcement_id = Column(Integer, ForeignKey("tbl_Announcement.announcement_id", ondelete="SET NULL"))
     message = Column(Text, nullable=False)
     is_read = Column(Boolean, default=False)
-    created_at = Column(DateTime, server_default="CURRENT_TIMESTAMP")
+    created_at = Column(DateTime, server_default=func.now())  # <--- Fixed
 
 class AuditLog(Base):
-    __tablename__ = "tbl_AuditLogs"
+    __tablename__ = "tbl_AuditLog"  # <--- Fixed name (was tbl_AuditLogs)
     audit_id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("tbl_Users.user_id", ondelete="CASCADE"), nullable=False)
     action = Column(String(100), nullable=False)
     description = Column(Text)
-    timestamp = Column(DateTime, server_default="CURRENT_TIMESTAMP")
+    timestamp = Column(DateTime, server_default=func.now())  # <--- Fixed
 
 class Report(Base):
-    __tablename__ = "tbl_Reports"
+    __tablename__ = "tbl_Report"  # <--- Fixed name (was tbl_Reports)
     report_id = Column(Integer, primary_key=True, index=True)
     report_type = Column(String(50), nullable=False)
     generated_by = Column(Integer, ForeignKey("tbl_Users.user_id", ondelete="CASCADE"), nullable=False)
     file_path = Column(String(255))
     date_range_start = Column(Date)
     date_range_end = Column(Date)
-    created_at = Column(DateTime, server_default="CURRENT_TIMESTAMP")
+    created_at = Column(DateTime, server_default=func.now())  # <--- Fixed

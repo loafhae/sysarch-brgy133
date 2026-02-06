@@ -15,7 +15,7 @@ const UserManagement = () => {
   const [modalAction, setModalAction] = useState('');
   const [selectedUserId, setSelectedUserId] = useState(null);
 
-  const API_URL = 'http://localhost:8000/api/users';
+  const API_URL = 'http://127.0.0.1:8000/users';
 
   const fetchUsers = async () => {
     try {

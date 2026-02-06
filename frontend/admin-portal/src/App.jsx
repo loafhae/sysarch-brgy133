@@ -2,7 +2,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
-import CreateAnnouncement from './pages/CreateAnnouncement'; // Import the page
+import CreateAnnouncement from './pages/CreateAnnouncement'; 
+import UserManagement from './pages/UserManagement'; // <--- IMPORT THIS
 
 function App() {
   return (
@@ -11,9 +12,10 @@ function App() {
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        
-        {/* THIS IS THE MISSING LINK */}
         <Route path="/create-announcement" element={<CreateAnnouncement />} />
+        
+        {/* ADD THIS ROUTE */}
+        <Route path="/users" element={<UserManagement />} />
       </Routes>
     </Router>
   );

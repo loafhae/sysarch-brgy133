@@ -13,64 +13,20 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  int _currentIndex = 0;
-  
-  // State for News Tab
-  List<dynamic> _announcements = [];
-  bool _isLoadingNews = true;
+  int _currentIndex = 0; // Which tab is open? (0=News, 1=Feedback, 2=Profile)
 
-  // List of screens for the Bottom Bar
+  // This list holds the 3 screens
   late final List<Widget> _screens;
 
   @override
   void initState() {
     super.initState();
-    
-    // Initialize screens
+    // Initialize the screens
     _screens = [
-      NewsTab(
-        announcements: _announcements, 
-        isLoading: _isLoadingNews,
-        refresh: _fetchNews, // Pass function to refresh
-      ),
-      const FeedbackTab(),
-      ProfileTab(fullName: widget.fullName),
+      const NewsTab(),      // Tab 0
+      const FeedbackTab(),  // Tab 1
+      ProfileTab(fullName: widget.fullName), // Tab 2
     ];
-
-    // Load news immediately when app opens
-    _fetchNews();
-  }
-
-  // --- FETCH NEWS FUNCTION (Fixed to handle errors) ---
-  Future<void> _fetchNews() async {
-    setState(() => _isLoadingNews = true);
-
-    try {
-      final response = await http.get(Uri.parse('${ApiConstants.baseUrl}/announcements'));
-      
-      print("Status Code: ${response.statusCode}");
-      print("Body: ${response.body}");
-
-      if (response.statusCode == 200) {
-        setState(() {
-          _announcements = jsonDecode(response.body);
-          _isLoadingNews = false;
-        });
-      } else {
-        // Server returned an error (e.g. 500)
-        setState(() {
-          _announcements = [];
-          _isLoadingNews = false;
-        });
-      }
-    } catch (e) {
-      // Connection failed (e.g. Server not running)
-      print("Connection Error: $e");
-      setState(() {
-        _announcements = [];
-        _isLoadingNews = false;
-      });
-    }
   }
 
   @override
@@ -80,13 +36,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
         title: const Text("Barangay 133"),
         backgroundColor: Colors.red,
       ),
-      // Display the screen based on the selected tab
+      // Show the selected screen
       body: _screens[_currentIndex],
+      // The Bottom Bar
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
-            _currentIndex = index;
+            _currentIndex = index; // Change the tab
           });
         },
         items: const [
@@ -99,67 +56,65 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 }
 
-// --- TAB 1: NEWS ---
-class NewsTab extends StatelessWidget {
-  final List<dynamic> announcements;
-  final bool isLoading;
-  final VoidCallback refresh; // Function to reload data
+// --- TAB 1: NEWS (Reads from Database) ---
+class NewsTab extends StatefulWidget {
+  const NewsTab({super.key});
 
-  const NewsTab({
-    super.key, 
-    required this.announcements, 
-    required this.isLoading,
-    required this.refresh
-  });
+  @override
+  State<NewsTab> createState() => _NewsTabState();
+}
+
+class _NewsTabState extends State<NewsTab> {
+  List<dynamic> _announcements = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchNews(); // Load news when app opens
+  }
+
+  Future<void> _fetchNews() async {
+    try {
+      final response = await http.get(Uri.parse('${ApiConstants.baseUrl}/announcements'));
+      if (response.statusCode == 200) {
+        setState(() {
+          _announcements = jsonDecode(response.body); // Save data
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return const Center(child: CircularProgressIndicator(color: Colors.red));
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
     }
 
-    if (announcements.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text("No announcements yet.", style: TextStyle(fontSize: 16)),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: refresh,
-              child: const Text("Refresh"),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            )
-          ],
-        ),
-      );
+    if (_announcements.isEmpty) {
+      return const Center(child: Text("No announcements yet."));
     }
 
-    return RefreshIndicator(
-      onRefresh: () async => refresh(),
-      child: ListView.builder(
-        padding: const EdgeInsets.all(10),
-        itemCount: announcements.length,
-        itemBuilder: (context, index) {
-          return Card(
-            elevation: 2,
-            margin: const EdgeInsets.only(bottom: 10),
-            child: ListTile(
-              leading: const Icon(Icons.announcement, color: Colors.red),
-              title: Text(
-                announcements[index]['title'], 
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              subtitle: Text(announcements[index]['body']),
-            ),
-          );
-        },
-      ),
+    return ListView.builder(
+      padding: const EdgeInsets.all(10),
+      itemCount: _announcements.length,
+      itemBuilder: (context, index) {
+        return Card(
+          child: ListTile(
+            leading: const Icon(Icons.announcement, color: Colors.red),
+            title: Text(_announcements[index]['title'], style: const TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text(_announcements[index]['body']),
+          ),
+        );
+      },
     );
   }
 }
 
-// --- TAB 2: FEEDBACK ---
+// --- TAB 2: FEEDBACK (Writes to Database) ---
 class FeedbackTab extends StatefulWidget {
   const FeedbackTab({super.key});
 
@@ -174,29 +129,21 @@ class _FeedbackTabState extends State<FeedbackTab> {
     if (_messageController.text.isEmpty) return;
 
     try {
-      final response = await http.post(
+      await http.post(
         Uri.parse('${ApiConstants.baseUrl}/feedback'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'message': _messageController.text,
-          'resident_id': 1, // Dummy ID for testing
+          'resident_id': 1, // Using dummy ID 1 for now
         }),
       );
-      
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Feedback Sent!'), backgroundColor: Colors.green),
-        );
-        _messageController.clear();
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to send'), backgroundColor: Colors.red),
-        );
-      }
-    } catch (e) {
-      print(e);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Connection Error'), backgroundColor: Colors.red),
+        const SnackBar(content: Text('Feedback Sent!')),
+      );
+      _messageController.clear();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to send')),
       );
     }
   }
@@ -210,15 +157,43 @@ class _FeedbackTabState extends State<FeedbackTab> {
           TextField(
             controller: _messageController,
             maxLines: 5,
-            decoration: const InputDecoration(
-              labelText: 'Your Message',
-              border: OutlineInputBorder(),
-              hintText: 'Type your complaint or suggestion here...'
-            ),
+            decoration: const InputDecoration(labelText: 'Your Message', border: OutlineInputBorder()),
           ),
           const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _submitFeedback,
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red, padding: const EdgeInsets.symmetric(vertical: 15)),
+          ElevatedButton(
+            onPressed: _submitFeedback,
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text("Send Feedback", style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// --- TAB 3: PROFILE ---
+class ProfileTab extends StatelessWidget {
+  final String fullName;
+  const ProfileTab({super.key, required this.fullName});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const CircleAvatar(radius: 40, child: Icon(Icons.person, size: 40)),
+          const SizedBox(height: 10),
+          Text(fullName, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const Text("Resident"),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context), // Go back to login
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+            child: const Text("Logout"),
+          )
+        ],
+      ),
+    );
+  }
+}
