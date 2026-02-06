@@ -1,114 +1,156 @@
 .management-page {
-  width: 100%; /* Force full width */
-  flex: 1; /* Force full height */
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .table-view {
   background: white;
-  width: 100%;
-  flex: 1; /* This makes the white box stretch to the bottom footer */
-  border: 3px solid #333;
-  box-shadow: 15px 15px 0px rgba(0,0,0,0.3);
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  border: 1px solid #e2e8f0;
+  overflow: hidden; 
   display: flex;
   flex-direction: column;
 }
-/* Search (Left) and Add User (Right) */
+
+/* Header Section */
 .table-header {
+  padding: 20px;
+  border-bottom: 1px solid #e2e8f0;
   display: flex;
   justify-content: space-between;
-  padding: 50px;
-  border-bottom: 3px solid #333;
+  align-items: center;
+  background: #fff;
+  flex-wrap: wrap; /* Allow wrapping on mobile */
+  gap: 15px;
 }
 
 .header-left {
   display: flex;
-  flex-direction: column; /* Stacks search and filter */
-  gap: 5px;              /* Adds vertical space between them */
-  align-items: flex-start;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .search-box {
-  background: white; 
-  border: 3px solid #000;
+  background: #f7fafc; 
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 8px 12px;
   display: flex;
   align-items: center;
-  padding: 12px 10px; /* Large but not overwhelming */
-  width: 300px;
+  width: 200px;
 }
 
 .search-box input {
   background: transparent;
   border: none;
-  color: white;
-  font-size: 1.4rem; /* Big text */
-  font-weight: bold;
   outline: none;
+  font-size: 0.95rem;
   width: 100%;
+  color: #4a5568;
 }
 
 .filter-select {
-  background: #222;
-  color: white;
-  padding: 10px 10px;
-  font-size: 1.2rem;
-  font-weight: 900;
-  border: 3px solid #000;
-  width: 180px;
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: white;
+  color: #4a5568;
 }
 
-
-
 .add-new-btn {
-  background: #1eff00;
-  color: rgb(0, 0, 0);
-  border: 1px solid #000;
-  /* Reduced padding to make it smaller T^T */
-  padding: 5px 5px; 
-  font-size: 1rem; /* Smaller, standard font size */
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 0.9rem;
   font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  border-radius: 2px;
-  box-shadow: 3px 3px 0px rgba(0,0,0,0.2);
+  gap: 8px;
+}
+
+/* --- RESPONSIVE TABLE CONTAINER --- */
+.table-responsive {
+    overflow-x: auto; /* Enables horizontal scroll on mobile */
+    width: 100%;
 }
 
 .user-table {
   width: 100%;
+  min-width: 600px; /* Forces scroll if screen is smaller than 600px */
   border-collapse: collapse;
-  font-size: 1.5rem; /* BIG TEXT */
+  font-size: 0.95rem;
 }
 
 .user-table th {
-  background: #eee;
-  padding: 5px;
-  border: 2px solid #333;
+  background: #f8f9fa;
+  color: #4a5568;
+  font-weight: 600;
+  text-align: left;
+  padding: 16px 20px;
+  border-bottom: 2px solid #e2e8f0;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  white-space: nowrap;
 }
 
 .user-table td {
-  padding: 25px 150px;
-  border: 1px solid #333;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #2d3748;
 }
 
-/* Zebra Stripes for empty rows */
-.user-table tbody {
-  background-image: repeating-linear-gradient(
-    #fff, #fff 5px, 
-    #f2f2f2 5px, #f2f2f2 5px
-  );
+.user-table tbody tr:nth-child(even) { background-color: #fafbfc; }
+.user-table tbody tr:hover { background-color: #f1f5f9; }
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background-color: #c6f6d5;
+  color: #22543d;
+}
+
+.status-badge.inactive { background-color: #fed7d7; color: #822727; }
+
+.actions-cell {
+  display: flex;
+  gap: 10px;
 }
 
 .action-icon {
-  font-size: 2rem;      /* Increases icon size */
-  padding: 0px;
-  background: #eee;     /* Grey circle look */
-  border-radius: 50%;
-  margin: 0 5px;
-  border: 1px solid #333;
+  background: transparent;
+  border: 1px solid #e2e8f0;
+  color: #718096;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
+.action-icon.edit:hover { background: #ebf8ff; color: #3182ce; border-color: #3182ce; }
+.action-icon.delete:hover { background: #fff5f5; color: #e53e3e; border-color: #e53e3e; }
 
-
+/* Mobile Stack for Header */
+@media (max-width: 600px) {
+    .table-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .header-left {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .search-box { width: auto; }
+}

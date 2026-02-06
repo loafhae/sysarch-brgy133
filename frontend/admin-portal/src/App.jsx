@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import CreateAnnouncement from './pages/CreateAnnouncement'; 
-import UserManagement from './pages/UserManagement'; // <--- IMPORT THIS
+import UserManagement from './pages/UserManagement'; 
 
 function App() {
   return (

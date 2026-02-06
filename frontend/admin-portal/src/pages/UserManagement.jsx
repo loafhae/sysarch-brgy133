@@ -15,6 +15,7 @@ const UserManagement = () => {
   const [modalAction, setModalAction] = useState('');
   const [selectedUserId, setSelectedUserId] = useState(null);
 
+  // Correct Backend URL
   const API_URL = 'http://127.0.0.1:8000/users';
 
   const fetchUsers = async () => {
@@ -44,8 +45,6 @@ const UserManagement = () => {
     try {
       if (modalAction === 'ADD') {
         await axios.post(API_URL, formData);
-      } else if (modalAction === 'SAVE') {
-        await axios.put(`${API_URL}/${selectedUserId}`, formData);
       } else if (modalAction === 'DELETE') {
         await axios.delete(`${API_URL}/${selectedUserId}`);
       }
@@ -63,6 +62,8 @@ const UserManagement = () => {
     <div className="management-page">
       {view === 'list' ? (
         <div className="table-view">
+          
+          {/* Header with Search and Add Button */}
           <div className="table-header">
             <div className="header-left">
               <div className="search-box">
@@ -75,7 +76,7 @@ const UserManagement = () => {
               </div>
               
               <select className="filter-select" onChange={(e) => setFilterRole(e.target.value)}>
-                <option value="">Filter by</option>
+                <option value="">Filter by Role</option>
                 <option value="Admin">Admin</option>
                 <option value="Official">Official</option>
                 <option value="Resident">Resident</option>
@@ -83,80 +84,82 @@ const UserManagement = () => {
             </div>
 
             <button className="add-new-btn" onClick={() => { setView('form'); setIsEditing(false); }}>
-              <span>⊕</span> Add New User
+              <span>⊕</span> Add User
             </button>
           </div>
           
-          <table className="user-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Username</th>
-                <th className="spacer-col"></th> {/* Empty Column Header */}
-                <th>Role</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredUsers.map((user, index) => (
-                <tr key={user.id}>
-                  <td>{index + 1}</td>
-                  <td>{user.username}</td>
-                  <td className="spacer-col"></td> {/* Empty Column Cell */}
-                  <td>{user.role}</td>
-                  <td><span className={`status-badge ${user.status === 'Inactive' ? 'inactive' : 'active'}`}>
-                    {user.status || 'Active'}
-                  </span></td>
-                  <td className="actions-cell">
-                    <button className="action-icon edit" onClick={() => { setView('form'); setIsEditing(true); setFormData(user); setSelectedUserId(user.id); }}>✏️</button>
-                    <button className="action-icon delete" onClick={() => handleActionRequest('DELETE', user.id)}>🗑️</button>
-                  </td>
+          {/* SCROLLABLE TABLE WRAPPER (Critical for Mobile) */}
+          <div className="table-responsive">
+            <table className="user-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Username</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <div className="form-card">
-          <h2>{isEditing ? 'Edit User' : 'Add New User'}</h2>
-          <div className="form-group">
-            <input type="text" placeholder="Username" value={formData.username} 
-                   onChange={(e) => setFormData({...formData, username: e.target.value})} />
-            
-            <select value={formData.role} onChange={(e) => setFormData({...formData, role: e.target.value})}>
-              <option value="">Select Role</option>
-              <option value="Admin">Admin</option>
-              <option value="Official">Official</option>
-              <option value="Resident">Resident</option>
-            </select>
-
-            <input type="password" placeholder="Password" 
-                   onChange={(e) => setFormData({...formData, password: e.target.value})} />
-          </div>
-
-          <div className="form-buttons">
-            <button className="save-btn" onClick={() => handleActionRequest(isEditing ? 'SAVE' : 'ADD')}>
-              {isEditing ? 'Save Changes' : 'Confirm Add'}
-            </button>
-            <button onClick={() => setView('list')} className="cancel-btn">Cancel</button>
-          </div>
-        </div>
-      )}
-
-      {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-box">
-            <h3>Are you sure you want to {modalAction} this user?</h3>
-            <div className="modal-actions">
-              <button className="yes-btn" onClick={confirmAction}>YES</button>
-              <button className="no-btn" onClick={() => setShowModal(false)}>NO</button>
+              </thead>
+              <tbody>
+                {filteredUsers.map((user, index) => (
+                  <tr key={user.id}>
+                    <td>{index + 1}</td>
+                    <td>{user.username}</td>
+                    <td>{user.role}</td>
+                    <td><span className="status-badge">Active</span></td>
+                    <td className="actions-cell">
+                      {/* Delete Button (Only if not Admin) */}
+                      {user.username !== 'admin' && (
+                        <button className="action-icon delete" onClick={() => handleActionRequest('DELETE', user.id)}>
+                          🗑️
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+                  </table>
+                  </div>
+                </div>
+              ) : (
+                /* Add User Form */
+                <div className="form-card" style={{ margin: 'auto', marginTop: '20px' }}>
+                  <h2>Add New User</h2>
+                  <div className="form-group">
+                    <label>Username</label>
+                    <input type="text" placeholder="Enter username" value={formData.username} onChange={(e) => setFormData({...formData, username: e.target.value})} />
+                  </div>
+                  <div className="form-group">
+                    <label>Role</label>
+                    <select value={formData.role} onChange={(e) => setFormData({...formData, role: e.target.value})}>
+                      <option value="">Select Role</option>
+                      <option value="Admin">Admin</option>
+                      <option value="Official">Official</option>
+                      <option value="Resident">Resident</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>Password</label>
+                    <input type="password" placeholder="Enter password" value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} />
+                  </div>
+                  <button onClick={() => handleActionRequest('ADD')}>Add User</button>
+                  <button onClick={() => { setView('list'); setFormData({ username: '', role: '', password: '' }); }}>Cancel</button>
+                </div>
+              )}
+  
+              {/* Confirmation Modal */}
+              {showModal && (
+                <div className="modal-overlay">
+                  <div className="modal-content">
+                    <h3>Confirm {modalAction}</h3>
+                    <p>Are you sure you want to {modalAction.toLowerCase()}?</p>
+                    <button onClick={confirmAction}>Yes</button>
+                    <button onClick={() => setShowModal(false)}>No</button>
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default UserManagement;
+        );
+      };
+      
+      export default UserManagement;
